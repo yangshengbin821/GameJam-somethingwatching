@@ -1258,14 +1258,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameAudioManager
   player: {fileID: 980378132}
   monster: {fileID: 1348798529}
+  flashlight: {fileID: 0}
   playerFootstep: {fileID: 8300000, guid: e7f0128e0e43346f68333e607063ec1b, type: 3}
   playerFootstepVolume: 0.5
   playerStepInterval: 0.4
-  monsterFootstep: {fileID: 8300000, guid: 261e7d0af06c942ffa085c61b9173fc3, type: 3}
+  monsterFootstep: {fileID: 8300000, guid: 47d2073e491ca47d59f333c2a9382c4a, type: 3}
   monsterMaxVolume: 1
   monsterStepInterval: 0.4
   fullVolumeDistance: 1
   hearingDistance: 12
+  monsterScream: {fileID: 0}
+  monsterScreamVolume: 1
+  monsterScreamCooldown: 1.5
+  playerScream: {fileID: 0}
+  playerScreamVolume: 1
+  playerScreamCooldown: 1.5
   backgroundMusic1: {fileID: 0}
   backgroundMusic2: {fileID: 0}
   musicVolume: 0.3
