@@ -4,81 +4,85 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("移动速度")]
+    [Min(0f)]
     public float moveSpeed = 5f;
 
-    // 角色图片默认朝右填 0，默认朝上填 -90
-    public float rotationOffset = 0f;
+    [Header("转向速度：每秒旋转多少度")]
+    [Min(0f)]
+    public float turnSpeed = 180f;
+
+    [Header("图片朝向修正")]
+    [Tooltip("图片默认朝上填 -90，默认朝右填 0")]
+    public float rotationOffset = -90f;
 
     private Rigidbody2D rb;
-    private Camera mainCamera;
-
-    private Vector2 moveInput;
-    private float lookAngle;
+    private bool forwardPressed;
+    private float turnInput;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        mainCamera = Camera.main;
-        lookAngle = rb.rotation;
     }
 
     void Update()
     {
-        // 读取 WASD
-        moveInput = Vector2.zero;
+        forwardPressed = false;
+        turnInput = 0f;
+
         Keyboard keyboard = Keyboard.current;
 
-        if (keyboard != null)
-        {
-            if (keyboard.wKey.isPressed) moveInput.y += 1f;
-            if (keyboard.sKey.isPressed) moveInput.y -= 1f;
-            if (keyboard.aKey.isPressed) moveInput.x -= 1f;
-            if (keyboard.dKey.isPressed) moveInput.x += 1f;
-        }
-
-        moveInput = moveInput.normalized;
-
-        // 读取鼠标位置
-        Mouse mouse = Mouse.current;
-
-        if (mouse == null || mainCamera == null)
+        if (keyboard == null || !Application.isFocused)
             return;
 
-        Vector2 mouseScreenPosition = mouse.position.ReadValue();
+        forwardPressed = keyboard.wKey.isPressed;
 
-        // 将屏幕位置转换到角色所在的 XY 平面
-        Ray ray = mainCamera.ScreenPointToRay(
-            new Vector3(mouseScreenPosition.x, mouseScreenPosition.y, 0f)
-        );
+        // Unity 2D 中，正角度为逆时针。
+        if (keyboard.aKey.isPressed)
+            turnInput += 1f;
 
-        Plane playerPlane = new Plane(Vector3.forward, transform.position);
-
-        if (playerPlane.Raycast(ray, out float distance))
-        {
-            Vector3 mouseWorldPosition = ray.GetPoint(distance);
-            Vector2 lookDirection =
-                (Vector2)mouseWorldPosition - rb.position;
-
-            // 鼠标与角色重合时，保留原来的朝向
-            if (lookDirection.sqrMagnitude > 0.0001f)
-            {
-                lookAngle =
-                    Mathf.Atan2(lookDirection.y, lookDirection.x)
-                    * Mathf.Rad2Deg
-                    + rotationOffset;
-            }
-        }
+        if (keyboard.dKey.isPressed)
+            turnInput -= 1f;
     }
 
     void FixedUpdate()
     {
-        rb.linearVelocity = moveInput * moveSpeed;
-        rb.MoveRotation(lookAngle);
+        if (Time.timeScale == 0f)
+            return;
+
+        float nextRotation =
+            rb.rotation +
+            turnInput * turnSpeed * Time.fixedDeltaTime;
+
+        rb.MoveRotation(nextRotation);
+
+        if (forwardPressed)
+        {
+            // 根据角色朝向计算前进方向。
+            float angle =
+                (nextRotation - rotationOffset) * Mathf.Deg2Rad;
+
+            Vector2 forward = new Vector2(
+                Mathf.Cos(angle),
+                Mathf.Sin(angle));
+
+            rb.linearVelocity = forward * moveSpeed;
+        }
+        else
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     void OnDisable()
     {
+        forwardPressed = false;
+        turnInput = 0f;
+
         if (rb != null)
+        {
             rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
     }
 }

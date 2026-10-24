@@ -680,6 +680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
+  turnSpeed: 180
   rotationOffset: -90
 --- !u!50 &980378130
 Rigidbody2D:
