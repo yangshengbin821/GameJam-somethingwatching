@@ -7,5 +7,6 @@
 **/[Bb]uilds/
 *.csproj
 *.sln
+/GameJam-Somethingwatching-1.0/
 *.slnx
 .DS_Store
