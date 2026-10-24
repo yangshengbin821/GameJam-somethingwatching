@@ -1,0 +1,28 @@
+fileFormatVersion: 2
+guid: 787f3e0be8f8adc4b967bc6faa1f5176
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mainMenuMusic: {fileID: 8300000, guid: 4a1c5d9e74c401b4d8324837d313441d, type: 3}
+  - phase1Music: {fileID: 8300000, guid: 1aaf4d5dc5a8bdf4282c15f36168c868, type: 3}
+  - phase2Music: {fileID: 8300000, guid: 5b50676250f6cf8408bb8538bf5feeb8, type: 3}
+  - buttonHover: {fileID: 8300000, guid: c0fb989f6fd32e34d8155b556c3592a0, type: 3}
+  - startClick: {fileID: 8300000, guid: 6065f14d709853049b99444ecd6cd7e1, type: 3}
+  - victory: {instanceID: 0}
+  - failure: {instanceID: 0}
+  - resurrection: {instanceID: 0}
+  - endTaunt: {instanceID: 0}
+  - ghostWailing: {instanceID: 0}
+  - watchingYou: {instanceID: 0}
+  - noWatchingType1: {instanceID: 0}
+  - noWatchingType2: {instanceID: 0}
+  - testSound: {instanceID: 0}
+  - playerWalking: {fileID: 8300000, guid: 1ffe4c9b469a75649ba0bf0b1edc393a, type: 3}
+  - monsterStepLeft: {fileID: 8300000, guid: d4767319621d95f4c8f14f05a2a071f2, type: 3}
+  - monsterStepRight: {fileID: 8300000, guid: 9aacbfe2ef38a7944b9c00aa51d7e0eb, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -119,6 +119,78 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &417565475
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 417565476}
+  - component: {fileID: 417565477}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &417565476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417565475}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &417565477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417565475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 787f3e0be8f8adc4b967bc6faa1f5176, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  mainMenuMusic: {fileID: 8300000, guid: 4a1c5d9e74c401b4d8324837d313441d, type: 3}
+  phase1Music: {fileID: 8300000, guid: 1aaf4d5dc5a8bdf4282c15f36168c868, type: 3}
+  phase2Music: {fileID: 8300000, guid: 5b50676250f6cf8408bb8538bf5feeb8, type: 3}
+  buttonHover: {fileID: 8300000, guid: c0fb989f6fd32e34d8155b556c3592a0, type: 3}
+  startClick: {fileID: 8300000, guid: 6065f14d709853049b99444ecd6cd7e1, type: 3}
+  victory: {fileID: 8300000, guid: d0c2114e0d15b91458b00f421a5c7a6d, type: 3}
+  failure: {fileID: 8300000, guid: c4e816fddbe8a0245ad615dd47ed8f09, type: 3}
+  resurrection: {fileID: 8300000, guid: 17f2726ff54b9c6448444309195fdc5f, type: 3}
+  endTaunt: {fileID: 8300000, guid: 64452be4ee0c09c489706ca8bf235c84, type: 3}
+  ghostWailing: {fileID: 8300000, guid: 9e2ead76aa091844b81081f323099650, type: 3}
+  watchingYou: {fileID: 8300000, guid: 4c20f2b0e56c6bb41adef1f758bec9d5, type: 3}
+  noWatchingType1: {fileID: 8300000, guid: d997d4f3b0ea5b74cbe3a79b05de4bba, type: 3}
+  noWatchingType2: {fileID: 8300000, guid: 1d3ee275ab6bef74d8efcd675669c0bb, type: 3}
+  testSound: {fileID: 8300000, guid: 047104754f130104987e1d2f81c6b198, type: 3}
+  playerWalking: {fileID: 8300000, guid: 1ffe4c9b469a75649ba0bf0b1edc393a, type: 3}
+  monsterStepLeft: {fileID: 8300000, guid: d4767319621d95f4c8f14f05a2a071f2, type: 3}
+  monsterStepRight: {fileID: 8300000, guid: 9aacbfe2ef38a7944b9c00aa51d7e0eb, type: 3}
+  masterVolume: 1
+  musicVolume: 0.25
+  soundVolume: 0.8
+  playerFootstepVolume: 0.6
+  monsterFootstepVolume: 0.8
+  normalStepInterval: 0.7
+  retreatStepInterval: 0.35
+  fullVolumeDistance: 2
+  silentDistance: 15
+  playMenuMusicOnStart: 0
+  stopSoundsOnSceneChange: 0
 --- !u!1 &494869424
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +753,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
   rotationOffset: -90
+  mapDirection: 0
+  phase2Position: 10
 --- !u!50 &980378130
 Rigidbody2D:
   serializedVersion: 5
@@ -1838,3 +1912,4 @@ SceneRoots:
   - {fileID: 971174278}
   - {fileID: 997510915}
   - {fileID: 1551819742}
+  - {fileID: 417565476}

@@ -63,10 +63,33 @@ public class EnemyChase : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         bodyCollider = GetComponent<Collider2D>();
     }
+    void LateUpdate()
+{
+    if (AudioManager.Instance == null)
+        return;
 
-    void OnEnable()
+    if (player == null || rb == null || Time.timeScale <= 0f)
     {
-        if (rb != null) previousPosition = rb.position;
+        AudioManager.Instance.StopMonsterWalking();
+        return;
+    }
+
+    bool isMoving = rb.linearVelocity.sqrMagnitude > 0.0001f;
+
+    float distance = Vector2.Distance(
+        rb.position, (Vector2)player.position);
+
+    bool isRetreating = wasIlluminated || extraRetreat;
+
+    AudioManager.Instance.SetMonsterFootsteps(
+        isMoving, distance, isRetreating);
+}
+    void OnEnable()
+    {    if (rb != null)
+        rb.linearVelocity = Vector2.zero;
+
+    if (AudioManager.Instance != null)
+        AudioManager.Instance.StopMonsterWalking();
         wasIlluminated = extraRetreat = false;
         flanking = false;
         lastFlankSide = 0;
