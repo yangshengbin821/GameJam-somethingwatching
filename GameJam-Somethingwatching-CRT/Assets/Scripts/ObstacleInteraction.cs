@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// 面朝方向（角色与鼠标指针的连线）一定距离内、挂有 RemovableObstacle 标记的障碍物会被略微高亮。
+/// 面朝方向（角色当前朝向）一定距离内、挂有 RemovableObstacle 标记的障碍物会被略微高亮。
 /// 按 E 出现进度条；读条期间若不再满足方向 / 距离 / 不被墙遮挡的条件，
 /// 进度暂停但进度条保留；读条完成后该障碍物消失。
 ///
@@ -16,14 +16,11 @@ public class ObstacleInteraction : MonoBehaviour
     [Tooltip("角色；留空时自动寻找场景中的 PlayerMovement。")]
     [SerializeField] private Transform player;
 
-    [Tooltip("用于把鼠标位置转换到世界的相机；留空时使用 Camera.main。")]
-    [SerializeField] private Camera aimCamera;
-
     [Header("选取 / Targeting")]
     [Tooltip("被视为障碍物的层。场景里的墙在 Obstacle 层（第 3 层）。")]
     [SerializeField] private LayerMask obstacleLayers;
 
-    [Tooltip("角色到鼠标方向上的最大交互距离（只对最近的障碍物生效）。")]
+    [Tooltip("角色面朝方向上的最大交互距离（只对最近的障碍物生效）。")]
     [Min(0.1f)]
     [SerializeField] private float interactRange = 1f;
 
@@ -45,7 +42,7 @@ public class ObstacleInteraction : MonoBehaviour
 
     [SerializeField] private Color barActiveColor = new Color(0.25f, 1f, 0.45f, 1f);
     [SerializeField] private Color barPausedColor = new Color(1f, 0.8f, 0.25f, 1f);
-    [SerializeField] private int barSortingOrder = 100;
+    [SerializeField] private int barSortingOrder = 32766;
 
     // 当前被高亮的物体及其原始颜色。
     private GameObject highlightedTarget;
@@ -80,9 +77,6 @@ public class ObstacleInteraction : MonoBehaviour
                 player = movement.transform;
         }
 
-        if (aimCamera == null)
-            aimCamera = Camera.main;
-
         if (obstacleLayers.value == 0)
             obstacleLayers = LayerMask.GetMask("Obstacle");
 
@@ -114,27 +108,13 @@ public class ObstacleInteraction : MonoBehaviour
         UpdateRead(selected, hit);
     }
 
-    // 用与 PlayerMovement 相同的方式，把鼠标位置投到角色所在的 XY 平面。
+    // 目标方向 = 角色当前朝向。1.1 的坦克式移动和手电都使用角色的 transform.up，
+    // 因此这里直接取 player.up，不再依赖鼠标。
     private void UpdateAimDirection()
     {
-        if (aimCamera == null || Mouse.current == null)
-        {
-            Vector2 fallback = player.up;
-            if (fallback.sqrMagnitude > 0.0001f)
-                aimDirection = fallback.normalized;
-            return;
-        }
-
-        Vector2 screenPosition = Mouse.current.position.ReadValue();
-        Ray ray = aimCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0f));
-        Plane plane = new Plane(Vector3.forward, player.position);
-
-        if (plane.Raycast(ray, out float distance))
-        {
-            Vector2 direction = (Vector2)ray.GetPoint(distance) - (Vector2)player.position;
-            if (direction.sqrMagnitude > 0.0001f)
-                aimDirection = direction.normalized;
-        }
+        Vector2 forward = player.up;
+        if (forward.sqrMagnitude > 0.0001f)
+            aimDirection = forward.normalized;
     }
 
     // 只返回射线上最近的非 Trigger 障碍物：更近的墙会先被命中，
@@ -235,7 +215,7 @@ public class ObstacleInteraction : MonoBehaviour
             return;
         }
 
-        // 条件：读条目标仍是鼠标射线第一个障碍物上解析出的可拆标记物体。
+        // 条件：读条目标仍是角色面朝方向射线第一个障碍物上解析出的可拆标记物体。
         // 这同时覆盖了“在方向上 / 在距离内 / 未被墙遮挡”三点；
         // 如果前方换成了一面没有标记的墙，selected 会变成 null，读条暂停。
         bool conditionMet = selected == readTarget && hit.collider != null;
@@ -312,7 +292,8 @@ public class ObstacleInteraction : MonoBehaviour
         SpriteRenderer backgroundRenderer = background.AddComponent<SpriteRenderer>();
         backgroundRenderer.sprite = barBackgroundSprite;
         backgroundRenderer.color = new Color(0f, 0f, 0f, 0.8f);
-        backgroundRenderer.sortingOrder = barSortingOrder;
+        backgroundRenderer.sortingLayerName = TopSortingLayer();
+        backgroundRenderer.sortingOrder = Mathf.Max(32766, barSortingOrder);
         background.transform.localScale = new Vector3(barWidth + 0.08f, barHeight + 0.08f, 1f);
 
         GameObject fill = new GameObject("Fill");
@@ -322,9 +303,16 @@ public class ObstacleInteraction : MonoBehaviour
         barFillRenderer = fill.AddComponent<SpriteRenderer>();
         barFillRenderer.sprite = barFillSprite;
         barFillRenderer.color = barActiveColor;
-        barFillRenderer.sortingOrder = barSortingOrder + 1;
+        barFillRenderer.sortingLayerName = TopSortingLayer();
+        barFillRenderer.sortingOrder = Mathf.Min(32767, Mathf.Max(32766, barSortingOrder) + 1);
         barFill.localPosition = new Vector3(-barWidth * 0.5f, 0f, 0f);
         barFill.localScale = new Vector3(0f, barHeight, 1f);
+    }
+
+    private static string TopSortingLayer()
+    {
+        SortingLayer[] layers = SortingLayer.layers;
+        return layers.Length > 0 ? layers[layers.Length - 1].name : "Default";
     }
 
     private void UpdateBarVisual()
@@ -343,6 +331,10 @@ public class ObstacleInteraction : MonoBehaviour
             return;
 
         barRoot.position = new Vector3(barPosition.x, barPosition.y, 0f);
+
+        // 进度条始终位于最顶层，且使用不受光照影响的 Sprite 材质，黑暗中也能看见。
+        if (!barRoot.gameObject.activeSelf)
+            barRoot.gameObject.SetActive(true);
     }
 
     private void CreateBarSprites()
