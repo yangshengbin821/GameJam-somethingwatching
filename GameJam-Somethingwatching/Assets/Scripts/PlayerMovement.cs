@@ -4,169 +4,85 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("移动速度")]
+    [Min(0f)]
     public float moveSpeed = 5f;
 
-    // 角色图片默认朝右填 0，默认朝上填 -90
-    public float rotationOffset = 0f;
+    [Header("转向速度：每秒旋转多少度")]
+    [Min(0f)]
+    public float turnSpeed = 180f;
 
-    public enum MapDirection
-    {
-        Right,
-        Left,
-        Up,
-        Down
-    }
-
-    [Header("走到地图中途时切换音乐")]
-    public MapDirection mapDirection = MapDirection.Right;
-
-    [Tooltip("向左或向右走填分界位置的 X；向上或向下走填 Y")]
-    public float phase2Position = 10f;
+    [Header("图片朝向修正")]
+    [Tooltip("图片默认朝上填 -90，默认朝右填 0")]
+    public float rotationOffset = -90f;
 
     private Rigidbody2D rb;
-    private Camera mainCamera;
+    private bool forwardPressed;
+    private float turnInput;
 
-    private Vector2 moveInput;
-    private Vector2 previousPosition;
-    private float lookAngle;
-    private bool phase2Started;
-
-    private void Awake()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        mainCamera = Camera.main;
-        lookAngle = rb.rotation;
-        previousPosition = rb.position;
     }
 
-    private void Update()
+    void Update()
     {
-        // 读取 WASD
-        moveInput = Vector2.zero;
+        forwardPressed = false;
+        turnInput = 0f;
+
         Keyboard keyboard = Keyboard.current;
 
-        if (keyboard != null)
-        {
-            if (keyboard.wKey.isPressed) moveInput.y += 1f;
-            if (keyboard.sKey.isPressed) moveInput.y -= 1f;
-            if (keyboard.aKey.isPressed) moveInput.x -= 1f;
-            if (keyboard.dKey.isPressed) moveInput.x += 1f;
-        }
-
-        moveInput = moveInput.normalized;
-
-        // 松开按键或暂停时，立即停止脚步声
-        if (moveInput == Vector2.zero || Time.timeScale <= 0f)
-        {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.SetPlayerMoving(false);
-        }
-
-       // CheckPhase2Music();
-
-        // 读取鼠标位置
-        Mouse mouse = Mouse.current;
-
-        if (mouse == null || mainCamera == null)
+        if (keyboard == null || !Application.isFocused)
             return;
 
-        Vector2 mouseScreenPosition = mouse.position.ReadValue();
+        forwardPressed = keyboard.wKey.isPressed;
 
-        Ray ray = mainCamera.ScreenPointToRay(
-            new Vector3(
-                mouseScreenPosition.x,
-                mouseScreenPosition.y,
-                0f)
-        );
+        // Unity 2D 中，正角度为逆时针。
+        if (keyboard.aKey.isPressed)
+            turnInput += 1f;
 
-        Plane playerPlane =
-            new Plane(Vector3.forward, transform.position);
-
-        if (playerPlane.Raycast(ray, out float distance))
-        {
-            Vector3 mouseWorldPosition = ray.GetPoint(distance);
-
-            Vector2 lookDirection =
-                (Vector2)mouseWorldPosition - rb.position;
-
-            if (lookDirection.sqrMagnitude > 0.0001f)
-            {
-                lookAngle =
-                    Mathf.Atan2(lookDirection.y, lookDirection.x)
-                    * Mathf.Rad2Deg
-                    + rotationOffset;
-            }
-        }
+        if (keyboard.dKey.isPressed)
+            turnInput -= 1f;
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
-        // 检查上一次物理更新后，玩家是否真的移动了
-        bool actuallyMoved =
-            (rb.position - previousPosition).sqrMagnitude > 0.000001f;
-
-        previousPosition = rb.position;
-
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetPlayerMoving(
-                moveInput.sqrMagnitude > 0f && actuallyMoved);
-        }
-
-        rb.linearVelocity = moveInput * moveSpeed;
-        rb.MoveRotation(lookAngle);
-    }
-
-    private void CheckPhase2Music()
-    {
-        if (phase2Started || Time.timeScale <= 0f)
+        if (Time.timeScale == 0f)
             return;
 
-        bool reached = false;
+        float nextRotation =
+            rb.rotation +
+            turnInput * turnSpeed * Time.fixedDeltaTime;
 
-        switch (mapDirection)
+        rb.MoveRotation(nextRotation);
+
+        if (forwardPressed)
         {
-            case MapDirection.Right:
-                reached = rb.position.x >= phase2Position;
-                break;
+            // 根据角色朝向计算前进方向。
+            float angle =
+                (nextRotation - rotationOffset) * Mathf.Deg2Rad;
 
-            case MapDirection.Left:
-                reached = rb.position.x <= phase2Position;
-                break;
+            Vector2 forward = new Vector2(
+                Mathf.Cos(angle),
+                Mathf.Sin(angle));
 
-            case MapDirection.Up:
-                reached = rb.position.y >= phase2Position;
-                break;
-
-            case MapDirection.Down:
-                reached = rb.position.y <= phase2Position;
-                break;
+            rb.linearVelocity = forward * moveSpeed;
         }
-
-        if (!reached || AudioManager.Instance == null)
-            return;
-
-        if (AudioManager.Instance.phase2Music == null)
-            return;
-
-        AudioManager.Instance.PlayPhase2Music();
-        phase2Started = true;
-    }
-
-    private void OnEnable()
-    {
-        if (rb != null)
-            previousPosition = rb.position;
-    }
-
-    private void OnDisable()
-    {
-        moveInput = Vector2.zero;
-
-        if (rb != null)
+        else
+        {
             rb.linearVelocity = Vector2.zero;
+        }
+    }
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetPlayerMoving(false);
+    void OnDisable()
+    {
+        forwardPressed = false;
+        turnInput = 0f;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
     }
 }
