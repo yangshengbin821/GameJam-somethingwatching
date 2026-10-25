@@ -15053,6 +15053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
+  turnSpeed: 180
   rotationOffset: -90
 --- !u!50 &980378130
 Rigidbody2D:
@@ -21532,6 +21533,7 @@ GameObject:
   - component: {fileID: 1348798527}
   - component: {fileID: 1348798526}
   - component: {fileID: 1348798530}
+  - component: {fileID: 1348798531}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -21561,7 +21563,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   mapCenter: {x: 0, y: 0}
-  mapSize: {x: 40, y: 40}
+  mapSize: {x: 250, y: 130}
   cellSize: 0.5
   agentRadius: 0.7
   repathInterval: 0.4
@@ -21569,6 +21571,19 @@ MonoBehaviour:
   changeRouteAfterRetreat: 1
   flankDistance: 3
   oldRoutePenalty: 5
+--- !u!114 &1348798531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348798525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d72c30699cd04881b530836c191d8302, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyVisibility
+  flashlight: {fileID: 1845727326}
 --- !u!50 &1348798527
 Rigidbody2D:
   serializedVersion: 5
@@ -29374,7 +29389,7 @@ MonoBehaviour:
   barOffset: 0.45
   barActiveColor: {r: 0.25, g: 1, b: 0.45, a: 1}
   barPausedColor: {r: 1, g: 0.8, b: 0.25, a: 1}
-  barSortingOrder: 100
+  barSortingOrder: 32766
 --- !u!1 &1849000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -34351,6 +34366,72 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &2000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2000000002}
+  - component: {fileID: 2000000003}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2000000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 237f138cc22ac4ee8b46e655143c2fde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameAudioManager
+  player: {fileID: 980378132}
+  monster: {fileID: 1348798529}
+  flashlight: {fileID: 1845727326}
+  playerFootstep: {fileID: 8300000, guid: d30591d09352e4ae1aa59e80f62fed81, type: 3}
+  playerFootstepVolume: 0.5
+  playerStepInterval: 0.35
+  monsterFootstep: {fileID: 8300000, guid: ca321ab8736984ce38f81e24e039422b, type: 3}
+  monsterMaxVolume: 1
+  monsterStepInterval: 0.4
+  fullVolumeDistance: 1
+  hearingDistance: 12
+  monsterScream: {fileID: 8300000, guid: b3dd6599b9fe44ebdbda69ad3bf7a3e5, type: 3}
+  monsterScreamVolume: 1
+  monsterScreamCooldown: 1.5
+  playerScream: {fileID: 8300000, guid: 5febc2de1cbd541aab846bc9e9963c37, type: 3}
+  playerScreamVolume: 1
+  playerScreamCooldown: 1.5
+  backgroundMusic1: {fileID: 8300000, guid: 7ad075963c48c44a4ad8274feff24e08, type: 3}
+  backgroundMusic2: {fileID: 8300000, guid: 64623d63bc6414a7ebb1d15d8ae961f1, type: 3}
+  musicVolume: 0.3
+  startingMusic: 1
+  movementThreshold: 0.05
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -34362,3 +34443,4 @@ SceneRoots:
   - {fileID: 1849000002}
   - {fileID: 1849100002}
   - {fileID: 1856389491}
+  - {fileID: 2000000002}
