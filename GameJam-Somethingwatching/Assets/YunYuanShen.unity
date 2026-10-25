@@ -227,7 +227,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &417565476
 Transform:
   m_ObjectHideFlags: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
   playerWalking: {fileID: 8300000, guid: 1ffe4c9b469a75649ba0bf0b1edc393a, type: 3}
   monsterStepLeft: {fileID: 8300000, guid: d4767319621d95f4c8f14f05a2a071f2, type: 3}
   monsterStepRight: {fileID: 8300000, guid: 9aacbfe2ef38a7944b9c00aa51d7e0eb, type: 3}
-  masterVolume: 1
+  masterVolume: 0.537
   musicVolume: 0.25
   soundVolume: 0.8
   playerFootstepVolume: 0.6
@@ -482,7 +482,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
