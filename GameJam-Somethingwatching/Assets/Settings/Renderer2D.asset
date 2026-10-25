@@ -1,25 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-2726692297611488057
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
-  m_Name: FullScreenPassRendererFeature
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.FullScreenPassRendererFeature
-  m_Active: 1
-  injectionPoint: 600
-  fetchColorBuffer: 1
-  requirements: 0
-  passMaterial: {fileID: 2100000, guid: 365a8314bde4bd143a9bd6855e13edbd, type: 2}
-  passIndex: 0
-  bindDepthStencilAttachment: 0
-  m_Version: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44,9 +24,8 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: -3555484719484374845, guid: 57d7c4c16e2765b47a4d2069b311bffe, type: 3}
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
     probeVolumeBlendStatesCS: {fileID: 0}
-  m_RendererFeatures:
-  - {fileID: -2726692297611488057}
-  m_RendererFeatureMap: c7d4124dcdd728dal
+  m_RendererFeatures: []
+  m_RendererFeatureMap: 
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
