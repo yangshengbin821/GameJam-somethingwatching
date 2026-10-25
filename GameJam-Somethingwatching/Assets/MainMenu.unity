@@ -334,7 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a552f9822a92e540a76699dcd16dfc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuScript
-  gameSceneName: YunYuanShen
+  gameSceneName: MapScene
   lightBackground: {fileID: 2028602014}
   minOnTime: 0.5
   maxOnTime: 5
