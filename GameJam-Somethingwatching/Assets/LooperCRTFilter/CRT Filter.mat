@@ -45,6 +45,6 @@ Material:
     - _Scan_Line_Speed: 0.01
     - _ScanlineStrength: 0.472
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.48341045, g: 0.6981132, b: 0.5129153, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

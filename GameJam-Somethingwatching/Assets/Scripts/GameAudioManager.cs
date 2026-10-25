@@ -9,9 +9,15 @@ public class GameAudioManager : MonoBehaviour
     public Flashlight2D flashlight;
 
     [Header("玩家脚步声")]
-    public AudioClip playerFootstep;
+    public AudioClip playerStepLeft;
+    public AudioClip playerStepRight;
     [Range(0f, 1f)] public float playerFootstepVolume = 0.5f;
-    [Min(0.05f)] public float playerStepInterval = 0.35f;
+
+    [Header("左脚到右脚的间隔")]
+    [Min(0.05f)] public float leftToRightInterval = 0.4f;
+
+    [Header("右脚到左脚的间隔")]
+    [Min(0.05f)] public float rightToLeftInterval = 0.4f;
 
     [Header("怪物脚步声")]
     public AudioClip monsterFootstep;
@@ -63,10 +69,10 @@ public class GameAudioManager : MonoBehaviour
     private float nextMonsterScream;
     private float nextPlayerScream;
 
+    private bool nextPlayerStepIsLeft = true;
     private bool wasIlluminated;
     private bool wasTouching;
 
-    // 保存角色的物理位置和碰撞体。
     private class CharacterTrack
     {
         public Transform target;
@@ -77,6 +83,7 @@ public class GameAudioManager : MonoBehaviour
         public void Bind(Transform value)
         {
             target = value;
+
             body = value != null
                 ? value.GetComponent<Rigidbody2D>()
                 : null;
@@ -121,10 +128,12 @@ public class GameAudioManager : MonoBehaviour
     AudioSource CreateSource(bool loop)
     {
         AudioSource source = gameObject.AddComponent<AudioSource>();
+
         source.playOnAwake = false;
         source.loop = loop;
         source.spatialBlend = 0f;
         source.dopplerLevel = 0f;
+
         return source;
     }
 
@@ -134,6 +143,7 @@ public class GameAudioManager : MonoBehaviour
         monsterTrack.Bind(monster);
 
         playerStepTimer = 0f;
+        nextPlayerStepIsLeft = true;
         monsterStepTimer = 0f;
         nextMonsterScream = 0f;
         nextPlayerScream = 0f;
@@ -146,13 +156,13 @@ public class GameAudioManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 支持运行时更换玩家或怪物引用。
         bool changed = false;
 
         if (playerTrack.target != player)
         {
             playerTrack.Bind(player);
             playerStepTimer = 0f;
+            nextPlayerStepIsLeft = true;
             changed = true;
         }
 
@@ -174,16 +184,16 @@ public class GameAudioManager : MonoBehaviour
         bool playerMoving = HasMoved(playerTrack);
         bool monsterMoving = HasMoved(monsterTrack);
 
-        UpdateFootsteps(
-            playerSource, playerFootstep,
-            playerMoving, playerTrack.Active,
-            playerStepInterval, ref playerStepTimer);
+        UpdatePlayerFootsteps(playerMoving);
 
         UpdateFootsteps(
-            monsterSource, monsterFootstep,
+            monsterSource,
+            monsterFootstep,
             monsterMoving,
             playerTrack.Active && monsterTrack.Active,
-            monsterStepInterval, ref monsterStepTimer);
+            monsterStepInterval,
+            ref monsterStepTimer
+        );
 
         CheckScreams();
     }
@@ -202,6 +212,47 @@ public class GameAudioManager : MonoBehaviour
         return track.Active &&
             distance > Mathf.Max(0.001f, movementThreshold)
             * Time.fixedDeltaTime;
+    }
+
+    void UpdatePlayerFootsteps(bool moving)
+    {
+        if (!playerTrack.Active)
+        {
+            playerSource.Stop();
+            playerStepTimer = 0f;
+            nextPlayerStepIsLeft = true;
+            return;
+        }
+
+        if (Time.timeScale == 0f)
+            return;
+
+        playerStepTimer = Mathf.Max(
+            0f, playerStepTimer - Time.fixedDeltaTime
+        );
+
+        if (!moving || playerStepTimer > 0f)
+            return;
+
+        bool isLeftStep = nextPlayerStepIsLeft;
+
+        AudioClip clip = isLeftStep
+            ? playerStepLeft
+            : playerStepRight;
+
+        if (clip != null)
+        {
+            playerSource.Stop();
+            playerSource.clip = clip;
+            playerSource.Play();
+        }
+
+        playerStepTimer = Mathf.Max(
+            0.05f,
+            isLeftStep ? leftToRightInterval : rightToLeftInterval
+        );
+
+        nextPlayerStepIsLeft = !nextPlayerStepIsLeft;
     }
 
     void UpdateFootsteps(
@@ -226,7 +277,6 @@ public class GameAudioManager : MonoBehaviour
 
         timer = Mathf.Max(0f, timer - Time.fixedDeltaTime);
 
-        // 短暂停顿不截断已经响起的脚步。
         if (moving && timer <= 0f)
         {
             source.PlayOneShot(clip);
@@ -244,7 +294,8 @@ public class GameAudioManager : MonoBehaviour
         }
 
         float distance = Vector2.Distance(
-            player.position, monster.position);
+            player.position, monster.position
+        );
 
         float near = Mathf.Max(0f, fullVolumeDistance);
         float far = Mathf.Max(near + 0.1f, hearingDistance);
@@ -260,6 +311,7 @@ public class GameAudioManager : MonoBehaviour
         float attenuation = MonsterAttenuation();
 
         playerSource.volume = Mathf.Clamp01(playerFootstepVolume);
+
         monsterSource.volume =
             attenuation * Mathf.Clamp01(monsterMaxVolume);
 
@@ -279,12 +331,10 @@ public class GameAudioManager : MonoBehaviour
 
         bool active = playerTrack.Active && monsterTrack.Active;
 
-        // 使用与怪物 AI 相同的光照判断，包含墙壁遮挡。
         bool illuminated = active &&
             flashlight != null &&
             flashlight.IsIlluminating(monsterTrack.Position);
 
-        // 只在“没被照 → 被照到”的瞬间触发。
         if (illuminated && !wasIlluminated &&
             monsterScream != null &&
             Time.time >= nextMonsterScream)
@@ -300,7 +350,6 @@ public class GameAudioManager : MonoBehaviour
 
         bool touching = active && CharactersTouching();
 
-        // 持续贴着玩家不会每帧重复惨叫。
         if (touching && !wasTouching &&
             playerScream != null &&
             Time.time >= nextPlayerScream)
@@ -337,7 +386,6 @@ public class GameAudioManager : MonoBehaviour
 
     bool UsableCollider(Collider2D collider)
     {
-        // 只用实体碰撞体，避免检测范围触发器提前触发惨叫。
         return collider != null &&
             collider.enabled &&
             collider.gameObject.activeInHierarchy &&

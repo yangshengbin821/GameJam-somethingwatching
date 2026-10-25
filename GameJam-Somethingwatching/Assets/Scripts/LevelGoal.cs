@@ -1,47 +1,45 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
-/// <summary>
-/// 终点触发器：玩家进入楼梯区域的 Trigger 后停止玩家移动并显示通关文字。
-/// </summary>
 public class LevelGoal : MonoBehaviour
 {
+    public Flashlight2D flashlight;
+
     private bool reached;
-    private GUIStyle style;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (reached)
             return;
 
-        PlayerMovement movement = other.GetComponent<PlayerMovement>();
+        PlayerMovement movement =
+            other.GetComponentInParent<PlayerMovement>();
+
         if (movement == null)
             return;
 
         reached = true;
         movement.enabled = false;
 
-        Rigidbody2D body = other.attachedRigidbody;
+        Rigidbody2D body = movement.GetComponent<Rigidbody2D>();
+
         if (body != null)
-            body.linearVelocity = Vector2.zero;
-
-        Debug.Log("LEVEL COMPLETE - 到达终点");
-    }
-
-    private void OnGUI()
-    {
-        if (!reached)
-            return;
-
-        if (style == null)
         {
-            style = new GUIStyle(GUI.skin.label);
-            style.fontSize = 42;
-            style.alignment = TextAnchor.MiddleCenter;
-            style.normal.textColor = Color.white;
+            body.linearVelocity = Vector2.zero;
+            body.angularVelocity = 0f;
         }
 
-        Rect rect = new Rect(0f, Screen.height * 0.42f, Screen.width, 90f);
-        GUI.Box(rect, GUIContent.none);
-        GUI.Label(rect, "LEVEL COMPLETE", style);
+        if (flashlight == null)
+            flashlight = movement.GetComponentInChildren<Flashlight2D>();
+
+        if (flashlight != null)
+        {
+            flashlight.enabled = false;
+
+            Light2D light = flashlight.GetComponent<Light2D>();
+
+            if (light != null)
+                light.enabled = false;
+        }
     }
 }
