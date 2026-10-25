@@ -27,12 +27,18 @@ public class AudioManager : MonoBehaviour
     public AudioClip noWatchingType2;
     public AudioClip testSound;
 
-    [Header("主角脚步")]
-    public AudioClip playerWalking;
+    [Header("主角脚步：分别拖入左右脚")]
+    public AudioClip playerStepLeft;
+    public AudioClip playerStepRight;
 
-    [Header("怪物脚步：分别拖入左右脚")]
-    public AudioClip monsterStepLeft;
-    public AudioClip monsterStepRight;
+    [Header("怪物脚步")]
+    public AudioClip monsterWalking;
+
+    [Header("左脚播放后，到右脚的间隔")]
+    [Min(0.05f)] public float leftToRightInterval = 0.4f;
+
+    [Header("右脚播放后，到左脚的间隔")]
+    [Min(0.05f)] public float rightToLeftInterval = 0.4f;
 
     [Header("音量")]
     [Range(0f, 1f)] public float masterVolume = 1f;
@@ -64,7 +70,8 @@ public class AudioManager : MonoBehaviour
 
     private float monsterDistance;
     private float stepTimer;
-    private bool nextStepIsLeft = true;
+    private float playerStepTimer;
+    private bool nextPlayerStepIsLeft = true;
 
     private void Awake()
     {
@@ -80,7 +87,7 @@ public class AudioManager : MonoBehaviour
 
         musicSource = CreateSource(true);
         soundSource = CreateSource(false);
-        playerSource = CreateSource(true);
+        playerSource = CreateSource(false);
 
         // 怪物使用单步音效，不能开启循环。
         monsterSource = CreateSource(false);
@@ -111,12 +118,12 @@ public class AudioManager : MonoBehaviour
     {
         ApplyVolumes();
 
-        // 暂停时停止脚步，防止循环继续播放。
         if (Time.timeScale <= 0f)
         {
             playerSource.Stop();
             monsterSource.Stop();
             stepTimer = 0f;
+            playerStepTimer = 0f;
             return;
         }
 
@@ -236,33 +243,36 @@ public class AudioManager : MonoBehaviour
     public void SetPlayerMoving(bool isMoving)
     {
         playerIsMoving = isMoving;
-
-        if (!isMoving)
-            playerSource.Stop();
     }
-
-    public void StartPlayerWalking()
-        => SetPlayerMoving(true);
-
-    public void StopPlayerWalking()
-        => SetPlayerMoving(false);
 
     private void UpdatePlayerFootsteps()
     {
-        if (!playerIsMoving || playerWalking == null)
-        {
-            playerSource.Stop();
+        playerStepTimer = Mathf.Max(
+            0f, playerStepTimer - Time.deltaTime
+        );
+
+        if (!playerIsMoving || playerStepTimer > 0f)
             return;
-        }
 
-        if (playerSource.clip != playerWalking)
+        bool isLeftStep = nextPlayerStepIsLeft;
+
+        AudioClip stepClip = isLeftStep
+            ? playerStepLeft
+            : playerStepRight;
+
+        if (stepClip != null)
         {
             playerSource.Stop();
-            playerSource.clip = playerWalking;
+            playerSource.clip = stepClip;
+            playerSource.Play();
         }
 
-        if (!playerSource.isPlaying)
-            playerSource.Play();
+        playerStepTimer = Mathf.Max(
+            0.05f,
+            isLeftStep ? leftToRightInterval : rightToLeftInterval
+        );
+
+        nextPlayerStepIsLeft = !nextPlayerStepIsLeft;
     }
 
     // ---------- 怪物脚步 ----------
@@ -304,30 +314,18 @@ public class AudioManager : MonoBehaviour
 
     private void UpdateMonsterFootsteps()
     {
-        if (!monsterIsMoving) return;
+        if (!monsterIsMoving)
+            return;
 
         stepTimer -= Time.deltaTime;
 
-        if (stepTimer > 0f) return;
+        if (stepTimer > 0f)
+            return;
 
-        AudioClip stepClip =
-            nextStepIsLeft ? monsterStepLeft : monsterStepRight;
-
-        // 若只绑定了一只脚，也可以使用已绑定的音效。
-        if (stepClip == null)
-        {
-            stepClip = nextStepIsLeft
-                ? monsterStepRight
-                : monsterStepLeft;
-        }
-
-        // 音高始终不变，只调整两步之间的间隔。
         monsterSource.pitch = 1f;
 
-        if (stepClip != null && monsterSource.volume > 0f)
-            monsterSource.PlayOneShot(stepClip);
-
-        nextStepIsLeft = !nextStepIsLeft;
+        if (monsterWalking != null && monsterSource.volume > 0f)
+            monsterSource.PlayOneShot(monsterWalking);
 
         float interval = monsterIsRetreating
             ? retreatStepInterval
@@ -341,7 +339,6 @@ public class AudioManager : MonoBehaviour
         monsterIsMoving = false;
         monsterIsRetreating = false;
         stepTimer = 0f;
-        nextStepIsLeft = true;
 
         monsterSource.Stop();
     }
@@ -361,6 +358,11 @@ public class AudioManager : MonoBehaviour
         StopMusic();
         StopAllSounds();
     }
+    public void StartPlayerWalking()
+    => SetPlayerMoving(true);
+
+    public void StopPlayerWalking()
+        => SetPlayerMoving(false);
 
     private void OnSceneChanged(Scene previous, Scene current)
     {

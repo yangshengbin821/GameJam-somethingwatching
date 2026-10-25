@@ -32,17 +32,23 @@ public class PlayerMovement : MonoBehaviour
 
         Keyboard keyboard = Keyboard.current;
 
-        if (keyboard == null || !Application.isFocused)
-            return;
+        if (keyboard != null && Application.isFocused)
+        {
+            forwardPressed = keyboard.wKey.isPressed;
 
-        forwardPressed = keyboard.wKey.isPressed;
+            if (keyboard.aKey.isPressed)
+                turnInput += 1f;
 
-        // Unity 2D 中，正角度为逆时针。
-        if (keyboard.aKey.isPressed)
-            turnInput += 1f;
+            if (keyboard.dKey.isPressed)
+                turnInput -= 1f;
+        }
 
-        if (keyboard.dKey.isPressed)
-            turnInput -= 1f;
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetPlayerMoving(
+                forwardPressed && moveSpeed > 0f && Time.timeScale > 0f
+            );
+        }
     }
 
     void FixedUpdate()
@@ -84,5 +90,7 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetPlayerMoving(false);
     }
 }
