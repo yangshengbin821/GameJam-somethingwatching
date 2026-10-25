@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// 根据 Assets/Map/MapData.json 在运行时搭建地图：
@@ -20,7 +21,6 @@ public class MapBuilder : MonoBehaviour
     private float halfWidth;
     private float halfHeight;
 
-    private Texture2D mapTexture;
     private Texture2D whiteTexture;
     private Sprite whiteSprite;
     private Material wallMaterial;
@@ -46,9 +46,17 @@ public class MapBuilder : MonoBehaviour
 
         if (mapRenderer != null)
         {
-            if (mapRenderer.sprite != null)
-                mapTexture = mapRenderer.sprite.texture;
             wallMaterial = mapRenderer.sharedMaterial;
+
+            // 地图图片已删除：用 1x1 白色 Sprite 按当前地图尺寸缩放出纯灰地板。
+            mapRenderer.sprite = GetWhiteSprite();
+            mapRenderer.color = new Color32(236, 236, 236, 255);
+            mapRenderer.sortingOrder = -10;
+            mapRenderer.transform.position = Vector3.zero;
+            mapRenderer.transform.localScale = new Vector3(
+                data.textureWidth / pixelsPerUnit,
+                data.textureHeight / pixelsPerUnit,
+                1f);
         }
 
         BuildWalls(data);
@@ -67,37 +75,37 @@ public class MapBuilder : MonoBehaviour
 
     private void BuildWalls(MapLevelData data)
     {
-        if (data.solids == null || data.solids.Length == 0)
+        if (data.walls == null || data.walls.Length == 0)
             return;
 
         GameObject walls = new GameObject("MapWalls");
         walls.transform.SetParent(transform, false);
 
-        foreach (MapRectData rect in data.solids)
+        foreach (MapWallData wall in data.walls)
         {
-            if (rect.w <= 0 || rect.h <= 0)
+            if (wall.w <= 0f || wall.h <= 0f)
                 continue;
 
-            GameObject wall = new GameObject("Wall");
-            wall.layer = 3; // Obstacle
-            wall.transform.SetParent(walls.transform, false);
-            wall.transform.position = PixelToWorld(
-                rect.x + rect.w * 0.5f,
-                rect.y + rect.h * 0.5f);
-            wall.transform.localScale = new Vector3(
-                rect.w / pixelsPerUnit,
-                rect.h / pixelsPerUnit,
+            GameObject go = new GameObject("Wall");
+            go.layer = 3; // Obstacle
+            go.transform.SetParent(walls.transform, false);
+            go.transform.position = PixelToWorld(wall.x, wall.y);
+            go.transform.rotation = Quaternion.Euler(0f, 0f, wall.angle);
+            go.transform.localScale = new Vector3(
+                wall.w / pixelsPerUnit,
+                wall.h / pixelsPerUnit,
                 1f);
 
-            SpriteRenderer renderer = wall.AddComponent<SpriteRenderer>();
+            SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = GetWhiteSprite();
             renderer.color = new Color32(50, 50, 50, 255);
             renderer.sortingOrder = 0;
             if (wallMaterial != null)
                 renderer.sharedMaterial = wallMaterial;
 
-            BoxCollider2D box = wall.AddComponent<BoxCollider2D>();
+            BoxCollider2D box = go.AddComponent<BoxCollider2D>();
             box.size = Vector2.one;
+            AddShadowCaster(go);
         }
     }
 
@@ -140,6 +148,7 @@ public class MapBuilder : MonoBehaviour
 
             BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
             collider.size = Vector2.one;
+            AddShadowCaster(wall);
         }
     }
 
@@ -167,29 +176,6 @@ public class MapBuilder : MonoBehaviour
                 : barrier.x - thickness + 1;
             return new RectInt(x, barrier.y, thickness, barrier.h);
         }
-    }
-
-    private void PaintMapRect(RectInt rect, Color32 color)
-    {
-        int x = Mathf.Clamp(rect.x, 0, mapTexture.width - 1);
-        int y = Mathf.Clamp(rect.y, 0, mapTexture.height - 1);
-        int width = Mathf.Clamp(rect.width, 1, mapTexture.width - x);
-        int height = Mathf.Clamp(rect.height, 1, mapTexture.height - y);
-
-        // 数据里的 y 以图片左上角为原点；Unity 贴图以左下角为原点。
-        int textureY = mapTexture.height - (y + height);
-        if (textureY < 0)
-        {
-            height += textureY;
-            textureY = 0;
-        }
-        if (width <= 0 || height <= 0)
-            return;
-
-        Color32[] pixels = new Color32[width * height];
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = color;
-        mapTexture.SetPixels32(x, textureY, width, height, pixels);
     }
 
     private bool BarrierContainsPoint(MapBarrierData barrier, int[] point)
@@ -228,6 +214,7 @@ public class MapBuilder : MonoBehaviour
             collider.size = new Vector2(
                 barrier.w / pixelsPerUnit,
                 barrier.h / pixelsPerUnit);
+            AddShadowCaster(go);
 
             go.AddComponent<RemovableObstacle>();
 
@@ -324,6 +311,14 @@ public class MapBuilder : MonoBehaviour
         goal.AddComponent<LevelGoal>();
     }
 
+    private static void AddShadowCaster(GameObject go)
+    {
+        ShadowCaster2D caster = go.AddComponent<ShadowCaster2D>();
+        var property = typeof(ShadowCaster2D).GetProperty("useRendererSilhouette");
+        if (property != null)
+            property.SetValue(caster, true);
+    }
+
     private Sprite GetWhiteSprite()
     {
         if (whiteSprite != null)
@@ -361,6 +356,7 @@ public class MapLevelData
     public float pixelsPerUnit;
     public int textureWidth;
     public int textureHeight;
+    public MapWallData[] walls;
     public MapRectData[] solids;
     public MapBarrierData[] barriers;
     public int[] start;
@@ -376,6 +372,16 @@ public class MapRectData
     public int y;
     public int w;
     public int h;
+}
+
+[Serializable]
+public class MapWallData
+{
+    public float x;
+    public float y;
+    public float w;
+    public float h;
+    public float angle;
 }
 
 [Serializable]
