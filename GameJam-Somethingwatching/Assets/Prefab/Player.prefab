@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 2506887165445691810}
   - component: {fileID: 7922873674467571211}
   - component: {fileID: 5102788172068373247}
+  - component: {fileID: 5720854125670171935}
   - component: {fileID: 8659725971126118723}
   m_Layer: 0
   m_Name: Player
@@ -171,6 +172,31 @@ MonoBehaviour:
   rotationOffset: -90
   mapDirection: 0
   phase2Position: 10
+--- !u!114 &5720854125670171935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6933328315251084938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a7f4c2b8e94f16a0c25d7e9b314680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrailMarker
+  markKey: 31
+  markSize: 0.55
+  darkColor: {r: 0.04, g: 0.14, b: 0.07, a: 1}
+  litColor: {r: 0, g: 1, b: 0, a: 1}
+  revealSpeed: 20
+  lineThickness: 0.16
+  positionOffset: {x: 0, y: 0}
+  flashlight: {fileID: 8122964166626008660}
+  sortingLayerName: Default
+  sortingOrder: -5
+  placeCooldown: 2
+  minDistance: 0.25
+  maxMarks: 300
 --- !u!58 &8659725971126118723
 CircleCollider2D:
   m_ObjectHideFlags: 0

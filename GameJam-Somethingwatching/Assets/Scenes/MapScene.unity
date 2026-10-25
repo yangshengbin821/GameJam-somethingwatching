@@ -61029,7 +61029,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleInteraction
   player: {fileID: 980378132}
-  aimCamera: {fileID: 884796063}
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -69161,11 +69160,11 @@ PrefabInstance:
       objectReference: {fileID: 1845727326}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.383003
+      value: -101.6
       objectReference: {fileID: 0}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.676998
+      value: -33.7
       objectReference: {fileID: 0}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.z

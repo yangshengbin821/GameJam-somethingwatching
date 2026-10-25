@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 8615783684338338651}
   - component: {fileID: 1577193746241395332}
   - component: {fileID: 7390070282778775389}
+  - component: {fileID: 4310576921846304127}
+  - component: {fileID: 7182460935177284403}
+  - component: {fileID: 5129406372850184456}
   - component: {fileID: 1861672513105837901}
   m_Layer: 0
   m_Name: Enemy
@@ -76,22 +79,89 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyChase
   player: {fileID: 0}
   flashlight: {fileID: 0}
-  moveSpeed: 1
+  moveSpeed: 3
   retreatSpeed: 10
   stopDistance: 0.6
   extraRetreatDistance: 5
+  fleeScreenWhenLit: 1
+  screenEscapeMargin: 3
+  respawn: {fileID: 5129406372850184456}
+  viewCamera: {fileID: 0}
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 8
   mapCenter: {x: 0, y: 0}
-  mapSize: {x: 40, y: 40}
-  cellSize: 0.5
+  mapSize: {x: 240, y: 120}
+  cellSize: 0.6
   agentRadius: 0.7
   repathInterval: 0.4
   retreatSearchDistance: 8
   changeRouteAfterRetreat: 1
   flankDistance: 3
   oldRoutePenalty: 5
+  maxSearchNodes: 12000
+  searchNodesPerStep: 192
+  blockedRetreatTimeout: 2
+  pathStatus: Ready
+  lastExpandedNodes: 0
+--- !u!114 &4310576921846304127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4164805451802792569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c6f1a8d94e4f27b3a15c7e0d682491, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterSpeedDirector
+  offscreenSpeed: 15
+  onScreenStartSpeed: 3
+  onScreenMaxSpeed: 6
+  onScreenAcceleration: 1.5
+  chase: {fileID: 7390070282778775389}
+  flashlight: {fileID: 0}
+  viewCamera: {fileID: 0}
+--- !u!114 &7182460935177284403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4164805451802792569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e4d2f7a61b4c059e3a72d1b5608f43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterEffects
+  screamClip: {fileID: 8300000, guid: f4e2fd21af17a564b926905eb6d6f6f2, type: 3}
+  screamVolume: 1
+  jumpscareImage: {fileID: 2800000, guid: a7d3e1c94b6f4a2d8e5c0f17b2d69384, type: 3}
+  jumpscareDuration: 3
+  flashlight: {fileID: 0}
+--- !u!114 &5129406372850184456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4164805451802792569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1f5a3c8e72b4d90af6c18b2e4750391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterRespawn
+  respawnDelay: 5
+  spawnMargin: 1.5
+  spawnClearance: 0.6
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  viewCamera: {fileID: 0}
+  chase: {fileID: 7390070282778775389}
+  speedDirector: {fileID: 4310576921846304127}
+  effects: {fileID: 7182460935177284403}
 --- !u!58 &1861672513105837901
 CircleCollider2D:
   m_ObjectHideFlags: 0
