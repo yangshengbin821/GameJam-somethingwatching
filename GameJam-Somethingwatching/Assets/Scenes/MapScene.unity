@@ -35157,7 +35157,7 @@ MonoBehaviour:
     rid: 3625288294563053647
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.01
+  m_Intensity: 0.02
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000i
@@ -69725,11 +69725,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -109.7
+      value: -104.92
       objectReference: {fileID: 0}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -32.5
+      value: -32.16
       objectReference: {fileID: 0}
     - target: {fileID: 8615783684338338651, guid: 993b9f0418e0c7840becf7fe25d5e586, type: 3}
       propertyPath: m_LocalPosition.z
