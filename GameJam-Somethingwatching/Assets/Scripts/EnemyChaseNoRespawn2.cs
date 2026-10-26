@@ -9,7 +9,7 @@ using UnityEngine;
 /// - 被手电照到时不逃跑，而是原地停住并把速度归零；手电移开后从 0 重新加速。
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
-public class EnemyChaseNoRespawn : MonoBehaviour
+public class EnemyChaseNoRespawn2 : MonoBehaviour
 {
     [Header("References / 引用")]
     public Transform player;
